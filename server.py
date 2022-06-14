@@ -1,5 +1,5 @@
-from flask import Flask
-from flask_restful import reqparse, abort, Api, Resource
+from flask import Flask, request
+from flask_restx import Resource, Api, fields
 
 app = Flask(__name__)
 api = Api(app)
@@ -16,33 +16,52 @@ TASKS = {
     },
 }
 
-parser = reqparse.RequestParser()
-parser.add_argument('task')
 
+ns_task = api.namespace('Task', descript='Task description')
+
+model_task_put = api.model('Task', {
+    'task_id': fields.Integer(readonly=True, description='Task unique identification number'),
+    'task': fields.String(required=True, description='Task message', example='Do the laundry')
+})
+
+model_task_output = api.model('TaskOutput', {
+    'task': fields.String(required=True, description='Task message', example='Do the laundry')
+})
+
+@ns_task.route('/<int:task_id>')
+@ns_task.response(404, 'Task not found')
+@ns_task.param('task_id', 'Task unique identification number', example=1)
 class Task(Resource):
+    @ns_task.marshal_with(model_task_output)
     def get(self, task_id):
+        '''Get a specific task'''
         if f'task{task_id}' not in TASKS:
-            abort(404, message=f'Task {task_id} does not exist')
-        return TASKS[f'task{task_id}']
+            api.abort(404, f'Task id {task_id} does not exist')
+        return TASKS[f'task{task_id}'], 200
 
+    @ns_task.marshal_with(model_task_output)
     def delete(self, task_id):
+        '''Delete a specific task'''
         if f'task{task_id}' not in TASKS:
-            abort(404, message=f'Task {task_id} does not exist')
+            api.abort(404, f'Task id {task_id} does not exist')
         del TASKS[f'task{task_id}']
         return '', 204
 
+    @ns_task.expect(model_task_put)
+    @ns_task.marshal_with(model_task_output)
     def put(self, task_id):
-        args = parser.parse_args()
-        task = {'task': args['task']}
-        TASKS[f'task{task_id}'] = task
-        return task, 201
+        '''Update a specific task'''
+        TASKS[f'task{task_id}'] = api.payload
+        return TASKS[f'task{task_id}'], 201
 
+
+ns_tasks = api.namespace('Tasks', descript='Tasks list')
+
+@ns_tasks.route('/tasks')
 class Tasks(Resource):
     def get(self):
+        '''Get list of tasks'''
         return TASKS
-
-api.add_resource(Tasks, '/tasks')
-api.add_resource(Task, '/task/<task_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)

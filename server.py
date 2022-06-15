@@ -4,6 +4,7 @@ from flask_restx import Resource, Api, fields
 app = Flask(__name__)
 api = Api(app)
 
+# TODO: Rewrite, use List with {'task_id': 1, 'msg': 'Do the laundary'} instead.
 TASKS = {
     'task1': {
         'task': 'This is task 1',
@@ -20,12 +21,30 @@ TASKS = {
 ns_task = api.namespace('Task', descript='Task description')
 
 model_task_put = api.model('Task', {
-    'task_id': fields.Integer(readonly=True, description='Task unique identification number'),
-    'task': fields.String(required=True, description='Task message', example='Do the laundry')
+    'task_id': fields.Integer(
+        default=1,
+        title='Task identification number',
+        description='Task unique identification number',
+        required=True,
+        example=1,
+    ),
+    'task': fields.String(
+        default='Task message',
+        title='Task message string',
+        description='Task message',
+        required=True,
+        example='Do the laundry',
+    ),
 })
 
 model_task_output = api.model('TaskOutput', {
-    'task': fields.String(required=True, description='Task message', example='Do the laundry')
+    'task': fields.String(
+        default='Task message',
+        title='Task message string',
+        description='Task message',
+        required=True,
+        example='Do the laundry',
+    ),
 })
 
 @ns_task.route('/<int:task_id>')
@@ -57,11 +76,17 @@ class Task(Resource):
 
 ns_tasks = api.namespace('Tasks', descript='Tasks list')
 
+model_tasks_output = api.model('Tasks', {
+    'tasks': fields.List(fields.Nested(model_task_output))
+})
+
 @ns_tasks.route('/tasks')
 class Tasks(Resource):
+    @ns_tasks.marshal_with(model_tasks_output)
     def get(self):
         '''Get list of tasks'''
-        return TASKS
+        return {'tasks': [task for _, task in TASKS.items()]}
+
 
 if __name__ == '__main__':
     app.run(debug=True)

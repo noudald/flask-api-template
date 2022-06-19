@@ -1,6 +1,6 @@
 '''The Result class represents the outcome of an operation.
 
-Taken from https://github.com/a-luna/flask-api-tutorial/blob/part-1/src/flask_api_tutorial/util/result.py
+Taken from https://github.com/a-luna/flask-api-tutorial/.
 '''
 
 
@@ -25,7 +25,7 @@ class Result:
         if self.success:
             return f'<Result success={self.success}>'
         else:
-            return f'<Result success={self.success}, message='{self.error}'>'
+            return f'<Result success={self.success}, message=\'{self.error}\'>'
 
     @property
     def failure(self):

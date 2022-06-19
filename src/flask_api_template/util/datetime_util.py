@@ -1,6 +1,6 @@
 '''Helper functions for datetime, timezone and timedelta objects.
 
-Taken from https://github.com/a-luna/flask-api-tutorial/blob/part-1/src/flask_api_tutorial/util/datetime_util.py
+Taken from https://github.com/a-luna/flask-api-tutorial/.
 '''
 import time
 from collections import namedtuple

@@ -1,6 +1,7 @@
-from datetime import timezone
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
+import jwt
 from flask import current_app
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -20,7 +21,7 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
-    password_hass = db.Column(db.String(100), nullable=False)
+    password_hash = db.Column(db.String(100), nullable=False)
     registered_on = db.Column(db.DateTime, default=utc_now)
     admin = db.Column(db.Boolean, default=False)
     public_id = db.Column(db.String(100), unique=True, default=lambda: str(uuid4()))
@@ -42,7 +43,7 @@ class User(db.Model):
     @password.setter
     def password(self, password):
         log_rounds = current_app.config.get('BCRYPT_LOG_ROUNDS')
-        hash_bytes = bcrypt.generate_password_has(password, log_rounds)
+        hash_bytes = bcrypt.generate_password_hash(password, log_rounds)
         self.password_hash = hash_bytes.decode('utf-8')
 
     def check_password(self, password):
@@ -55,3 +56,15 @@ class User(db.Model):
     @classmethod
     def find_by_public_id(cls, public_id):
         return cls.query.filter_by(public_id=public_id).first()
+
+    def encode_access_token(self):
+        now = datetime.now(timezone.utc)
+        token_age_h = current_app.config.get('TOKEN_EXPIRE_HOURS')
+        token_age_m = current_app.config.get('TOKEN_EXPIRE_MINUTES')
+        expire = now + timedelta(hours=token_age_h, minutes=token_age_m)
+        if current_app.config['TESTING']:
+            # Expire after 5 seconds for debug purposes.
+            expire = now + timedelta(seconds=5)
+        payload = dict(exp=expire, iat=now, sub=self.public_id, admin=self.admin)
+        key = current_app.config.get('SECRET_KEY')
+        return jwt.encode(payload, key, algorithm='HS256')

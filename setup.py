@@ -13,6 +13,7 @@ INSTALL_REQUIRES = [
     'Flask-SQLAlchemy',
     'flask-restx',
     'python-dotenv',
+    'PyJWT',
 ]
 EXTRAS_REQUIRE = {
     'dev': [

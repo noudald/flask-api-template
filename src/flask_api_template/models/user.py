@@ -18,7 +18,7 @@ from flask_api_template.util.result import Result
 class User(db.Model):
     '''User model'''
 
-    __tablename__ = 'api_user'
+    __tablename__ = 'site_user'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(255), unique=True, nullable=False)

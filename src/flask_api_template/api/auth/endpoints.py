@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from flask_restx import Namespace, Resource
 
-from flask_api_template.api.auth.dto import auth_reqparse
+from flask_api_template.api.auth.dto import auth_reqparser
 from flask_api_template.api.auth.business import process_registation_request
 
 
@@ -11,7 +11,7 @@ auth_ns = Namespace(name='auth', validate=True)
 
 @auth_ns.route('/register', endpoint='auth_register')
 class RegisterUser(Resource):
-    @auth_ns.expect(auth_regparser)
+    @auth_ns.expect(auth_reqparser)
     @auth_ns.response(
         int(HTTPStatus.CREATED),
         'New user was successfully create'

@@ -34,7 +34,7 @@ def process_registation_request(email, password):
     response = jsonify(
         status='success',
         message='successfully registered',
-        access_token=access_token.decode(),
+        access_token=access_token,
         token_type='bearer',
         expires_in=_get_token_expire_time()
     )

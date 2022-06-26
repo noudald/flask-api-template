@@ -29,8 +29,8 @@ class RegisterUser(Resource):
         'Internal server error'
     )
     def post(self):
-        request_date = auth_reqparser.parse_args()
+        request_data = auth_reqparser.parse_args()
         email = request_data.get('email')
         password = request_data.get('password')
 
-        return process_registration_request(email, password)
+        return process_registation_request(email, password)

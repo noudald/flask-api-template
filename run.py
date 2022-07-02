@@ -3,6 +3,7 @@ import os
 import click
 
 from flask_api_template import create_app, db
+from flask_api_template.models.token_blacklist import BlacklistedToken
 from flask_api_template.models.user import User
 from flask_api_template.models.widget import Widget
 
@@ -37,4 +38,9 @@ def add_user(email, admin, password):
 
 @app.shell_context_processor
 def shell():
-    return {'db': db, 'User': User, 'Widget': Widget}
+    return {
+        'db': db,
+        'User': User,
+        'Widget': Widget,
+        'BlacklistedToken': BlacklistedToken
+    }

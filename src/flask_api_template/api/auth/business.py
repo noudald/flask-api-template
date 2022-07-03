@@ -4,6 +4,8 @@ from flask import current_app, jsonify
 from flask_restx import abort
 
 from flask_api_template import db
+from flask_api_template.api.auth.decorators import token_required
+from flask_api_template.models.token_blacklist import BlacklistedToken
 from flask_api_template.models.user import User
 
 
@@ -43,3 +45,14 @@ def process_registation_request(email, password):
     response.headers['Pragma'] = 'no-cache'
 
     return response
+
+
+@token_required
+def process_logout_request():
+    access_token = process_logout_request.token
+    expires_at = process_logout_request.expires_at
+    blacklisted_token = BlacklistedToken(access_token, expires_at)
+    db.session.add(blacklisted_token)
+    db.session.commit()
+    response_dict = dict(status='success', message='successfully logged out')
+    return response_dict, HTTPStatus.OK

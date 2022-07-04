@@ -7,6 +7,10 @@ from flask_api_template import db
 from flask_api_template.api.auth.decorators import token_required
 from flask_api_template.models.token_blacklist import BlacklistedToken
 from flask_api_template.models.user import User
+from flask_api_template.util.datetime_util import (
+    remaining_fromtimestamp,
+    format_timespan_digits
+)
 
 
 def _get_token_expire_time():
@@ -45,6 +49,17 @@ def process_registation_request(email, password):
     response.headers['Pragma'] = 'no-cache'
 
     return response
+
+
+@token_required
+def get_logged_in_user():
+    public_id = get_logged_in_user.public_id
+    user = User.find_by_public_id(public_id)
+    expires_at = get_logged_in_user.expires_at
+    user.token_expires_in = format_timespan_digits(
+        remaining_fromtimestamp(expires_at)
+    )
+    return user
 
 
 @token_required

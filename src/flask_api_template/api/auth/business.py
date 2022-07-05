@@ -69,7 +69,7 @@ def process_registation_request(email, password):
 
 def process_login_request(email, password):
     user = User.find_by_email(email)
-    if not user or user.check_password(password):
+    if not user or not user.check_password(password):
         abort(
             HTTPStatus.UNAUTHORIZED,
             'Email or password does not match',
@@ -77,7 +77,7 @@ def process_login_request(email, password):
         )
     access_token = user.encode_access_token()
     return _create_auth_successful_response(
-        token=access_token.decode(),
+        token=access_token,
         status_code=HTTPStatus.OK,
         message='successfully logged in'
     )

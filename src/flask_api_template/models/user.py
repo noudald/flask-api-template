@@ -34,7 +34,7 @@ class User(db.Model):
 
     @hybrid_property
     def registered_on_str(self):
-        registered_on_utc = make_tzaware(self.registered_on, use_tz=timezone.utc, localized=False)
+        registered_on_utc = make_tzaware(self.registered_on, use_tz=timezone.utc, localize=False)
         return localized_dt_string(registered_on_utc, use_tz=get_local_utcoffset())
 
     @property

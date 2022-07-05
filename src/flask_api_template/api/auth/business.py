@@ -24,6 +24,22 @@ def _get_token_expire_time():
     return expires_in_seconds
 
 
+def _create_auth_successful_response(token, status_code, message):
+    response = jsonify(
+        status='success',
+        message=message,
+        access_token=token,
+        token_type='bearer',
+        expires_in=_get_token_expire_time()
+    )
+
+    response.status_code = status_code
+    response.headers['Cache-Control'] = 'no-store'
+    response.headers['Pragma'] = 'no-cache'
+
+    return response
+
+
 def process_registation_request(email, password):
     if User.find_by_email(email):
         return abort(
@@ -49,6 +65,22 @@ def process_registation_request(email, password):
     response.headers['Pragma'] = 'no-cache'
 
     return response
+
+
+def process_login_request(email, password):
+    user = User.find_by_email(email)
+    if not user or user.check_password(password):
+        abort(
+            HTTPStatus.UNAUTHORIZED,
+            'Email or password does not match',
+            status='fail'
+        )
+    access_token = user.encode_access_token()
+    return _create_auth_successful_response(
+        token=access_token.decode(),
+        status_code=HTTPStatus.OK,
+        message='successfully logged in'
+    )
 
 
 @token_required

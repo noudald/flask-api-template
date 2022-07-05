@@ -5,6 +5,7 @@ from flask_restx import Namespace, Resource
 from flask_api_template.api.auth.dto import auth_reqparser, user_model
 from flask_api_template.api.auth.business import (
     process_registation_request,
+    process_login_request,
     get_logged_in_user,
 )
 
@@ -38,6 +39,26 @@ class RegisterUser(Resource):
         password = request_data.get('password')
 
         return process_registation_request(email, password)
+
+
+@auth_ns.route('/login', endpoint='auth_login')
+class LoginUser(Resource):
+    @auth_ns.expect(auth_reqparser)
+    @auth_ns.response(int(HTTPStatus.OK), 'Login successful')
+    @auth_ns.response(
+        int(HTTPStatus.UNAUTHORIZED),
+        'Email or password does not match'
+    )
+    @auth_ns.response(int(HTTPStatus.BAD_REQUEST), 'Validation error')
+    @auth_ns.response(
+        int(HTTPStatus.INTERNAL_SERVER_ERROR),
+        'Internal server error'
+    )
+    def post(self):
+        request_data = auth_reqparser.parse_args()
+        email = request_data.get('email')
+        password = request_data.get('password')
+        return process_login_request(email, password)
 
 
 @auth_ns.route('/user', endpoint='auth_user')

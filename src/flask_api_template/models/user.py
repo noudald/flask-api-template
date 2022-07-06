@@ -74,8 +74,8 @@ class User(db.Model):
     def decode_access_token(access_token):
         if isinstance(access_token, bytes):
             access_token = access_token.decode('ascii')
-        if access_token.startswith('Bearer: '):
-            split = access_token.split('Bearer: ')
+        if access_token.startswith('Bearer '):
+            split = access_token.split('Bearer ')
             access_token = split[1].strip()
         try:
             key = current_app.config.get('SECRET_KEY')

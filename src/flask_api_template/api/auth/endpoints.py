@@ -6,6 +6,7 @@ from flask_api_template.api.auth.dto import auth_reqparser, user_model
 from flask_api_template.api.auth.business import (
     process_registation_request,
     process_login_request,
+    process_logout_request,
     get_logged_in_user,
 )
 
@@ -80,3 +81,26 @@ class GetUser(Resource):
     @auth_ns.marshal_with(user_model)
     def get(self):
         return get_logged_in_user()
+
+
+@auth_ns.route('/logout', endpoint='auth_logout')
+class LogoutUser(Resource):
+    @auth_ns.doc(security='Bearer')
+    @auth_ns.response(
+        int(HTTPStatus.OK),
+        'Log out succeeded, token is no longer valid.'
+    )
+    @auth_ns.response(
+        int(HTTPStatus.BAD_REQUEST),
+        'Validation error'
+    )
+    @auth_ns.response(
+        int(HTTPStatus.UNAUTHORIZED),
+        'Token is invalid or expired'
+    )
+    @auth_ns.response(
+        int(HTTPStatus.INTERNAL_SERVER_ERROR),
+        'Internal server error'
+    )
+    def post(self):
+        return process_logout_request()

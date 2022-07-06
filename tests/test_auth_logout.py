@@ -47,8 +47,7 @@ def test_logout_token_blacklisted(client, db):
 
     response = logout_user(client, access_token)
     assert response.status_code == HTTPStatus.UNAUTHORIZED
-    assert ('message' in response.json and
-        response.json['message'] == TOKEN_BLACKLISTED)
+    assert ('message' in response.json
+            and response.json['message'] == TOKEN_BLACKLISTED)
     assert 'WWW-Authenticate' in response.headers
     assert response.headers['WWW-Authenticate'] == WWW_AUTH_BLACKLISTED_TOKEN
-

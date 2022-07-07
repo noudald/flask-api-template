@@ -36,6 +36,15 @@ def add_user(email, admin, password):
     return 0
 
 
+@app.cli.command('list-users', short_help='List all users')
+def list_users():
+    print('List of users:')
+    for user in User.list_all_users():
+        print(user)
+
+    return 0
+
+
 @app.shell_context_processor
 def shell():
     return {

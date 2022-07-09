@@ -14,6 +14,7 @@ INSTALL_REQUIRES = [
     'flask-restx',
     'python-dotenv',
     'PyJWT',
+    'python-dateutil',
 ]
 EXTRAS_REQUIRE = {
     'dev': [

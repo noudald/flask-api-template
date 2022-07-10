@@ -3,6 +3,7 @@ import re
 from datetime import date, datetime, time, timezone
 
 from dateutil import parser
+from flask_restx import fields, Model
 from flask_restx.inputs import positive, URL
 from flask_restx.reqparse import RequestParser
 
@@ -84,4 +85,56 @@ pagination_reqparser.add_argument(
     type=positive,
     required=False,
     choices=[5, 10, 25, 50, 100],
+)
+
+widget_owner_model = Model(
+    'Widget Owner',
+    {
+        'email': fields.String,
+        'public_id': fields.String
+    }
+)
+
+widget_model = Model(
+    'Widget',
+    {
+        'name': fields.String,
+        'info_url': fields.String,
+        'created_at': fields.String(attribute='created_at_str'),
+        'created_at_iso8601': fields.DateTime(attribute='created_at'),
+        'created_at_rfc822': fields.DateTime(
+            attribute='created_at',
+            dt_format='rfc822'
+        ),
+        'deadline': fields.String(attribute='deadline_str'),
+        'deadline_passed': fields.Boolean,
+        'time_remaining': fields.String(attribute='time_remaining_str'),
+        'owner': fields.Nested(widget_owner_model),
+        'link': fields.Url('api.widget'),
+    },
+)
+
+pagination_links_model = Model(
+    'Nav Links',
+    {
+        'self': fields.String,
+        'prev': fields.String,
+        'next': fields.String,
+        'first': fields.String,
+        'last': fields.String
+    }
+)
+
+pagination_model = Model(
+    'Pagination',
+    {
+        'links': fields.Nested(pagination_links_model, skip_none=True),
+        'has_prev': fields.Boolean,
+        'has_next': fields.Boolean,
+        'page': fields.Integer,
+        'total_pages': fields.Integer(attribute='pages'),
+        'items_per_page': fields.Integer(attribute='per_page'),
+        'total_items': fields.Integer(attribute='total'),
+        'items': fields.List(fields.Nested(widget_model)),
+    },
 )

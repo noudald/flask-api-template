@@ -3,7 +3,7 @@ import re
 from datetime import date, datetime, time, timezone
 
 from dateutil import parser
-from flask_restx.inputs import URL
+from flask_restx.inputs import positive, URL
 from flask_restx.reqparse import RequestParser
 
 from flask_api_template.util.datetime_util import (
@@ -70,4 +70,18 @@ create_widget_reqparser.add_argument(
     location='form',
     required=True,
     nullable=False,
+)
+
+pagination_reqparser = RequestParser(bundle_errors=True)
+pagination_reqparser.add_argument(
+    'page',
+    type=positive,
+    required=False,
+    default=1
+)
+pagination_reqparser.add_argument(
+    'per_page',
+    type=positive,
+    required=False,
+    choices=[5, 10, 25, 50, 100],
 )

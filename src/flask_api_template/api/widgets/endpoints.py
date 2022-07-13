@@ -4,6 +4,7 @@ from flask_restx import Namespace, Resource
 
 from flask_api_template.api.widgets.dto import (
     create_widget_reqparser,
+    update_widget_reqparser,
     pagination_reqparser,
     widget_owner_model,
     widget_model,
@@ -13,7 +14,9 @@ from flask_api_template.api.widgets.dto import (
 from flask_api_template.api.widgets.business import (
     create_widget,
     retrieve_widget_list,
-    retrieve_widget
+    retrieve_widget,
+    update_widget,
+    delete_widget
 )
 
 widget_ns = Namespace(name='widgets', validate=True)
@@ -79,3 +82,28 @@ class Widget(Resource):
     @widget_ns.marshal_with(widget_model)
     def get(self, name):
         return retrieve_widget(name)
+
+    @widget_ns.doc(security='Bearer')
+    @widget_ns.response(
+        int(HTTPStatus.OK),
+        'Widget was updated.',
+        widget_model
+    )
+    @widget_ns.response(int(HTTPStatus.CREATED), 'Added new widget.')
+    @widget_ns.response(
+        int(HTTPStatus.FORBIDDEN),
+        'Administrator token required.'
+    )
+    @widget_ns.expect(update_widget_reqparser)
+    def put(self, name):
+        widget_dict = update_widget_reqparser.parse_args()
+        return update_widget(name, widget_dict)
+
+    @widget_ns.doc(security='Bearer')
+    @widget_ns.response(int(HTTPStatus.NO_CONTENT), 'Widget was deleted.')
+    @widget_ns.response(
+        int(HTTPStatus.FORBIDDEN),
+        'Administrator token required.'
+    )
+    def delete(self, name):
+        return delete_widget(name)

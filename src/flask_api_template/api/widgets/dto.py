@@ -138,3 +138,6 @@ pagination_model = Model(
         'items': fields.List(fields.Nested(widget_model)),
     },
 )
+
+update_widget_reqparser = create_widget_reqparser.copy()
+update_widget_reqparser.remove_argument('name')

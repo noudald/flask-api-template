@@ -8,7 +8,10 @@ from flask_api_template.api.auth.decorators import (
     token_required,
     admin_token_required
 )
-from flask_api_template.api.widgets.dto import pagination_model
+from flask_api_template.api.widgets.dto import (
+    pagination_model,
+    widget_name
+)
 from flask_api_template.models.user import User
 from flask_api_template.models.widget import Widget
 
@@ -99,3 +102,31 @@ def retrieve_widget(name):
     return Widget.query.filter_by(name=name.lower()).first_or_404(
         description=f'{name} not found in database.'
     )
+
+
+@admin_token_required
+def update_widget(name, widget_dict):
+    widget = Widget.find_by_name(name.lower())
+    if widget:
+        for k, v in widget_dict.items():
+            setattr(widget, k, v)
+        db.session.commit()
+        message = f'"{name}" was successfully updated'
+        response_dict = dict(status='success', message=message)
+        return response_dict, HTTPStatus.OK
+    try:
+        valid_name = widget_name(name.lower())
+    except ValueError as e:
+        abort(HTTPStatus.BAD_REQUEST, str(e), status='fail')
+    widget_dict['name'] = valid_name
+    return create_widget(widget_dict)
+
+
+@admin_token_required
+def delete_widget(name):
+    widget = Widget.query.filter_by(name=name.lower()).first_or_404(
+        description=f'"{name}" not found in database'
+    )
+    db.session.delete(widget)
+    db.session.commit()
+    return '', HTTPStatus.NO_CONTENT

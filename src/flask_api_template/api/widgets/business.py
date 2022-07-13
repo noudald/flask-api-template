@@ -92,3 +92,10 @@ def retrieve_widget_list(page, per_page):
     response.headers['Total-Count'] = pagination.total
 
     return response
+
+
+@token_required
+def retrieve_widget(name):
+    return Widget.query.filter_by(name=name.lower()).first_or_404(
+        description=f'{name} not found in database.'
+    )

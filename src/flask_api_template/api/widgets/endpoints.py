@@ -12,7 +12,8 @@ from flask_api_template.api.widgets.dto import (
 )
 from flask_api_template.api.widgets.business import (
     create_widget,
-    retrieve_widget_list
+    retrieve_widget_list,
+    retrieve_widget
 )
 
 widget_ns = Namespace(name='widgets', validate=True)
@@ -57,3 +58,24 @@ class WidgetList(Resource):
     def post(self):
         widget_dict = create_widget_reqparser.parser_args()
         return create_widget(widget_dict)
+
+
+@widget_ns.route('/<name>', endpoint='widget')
+@widget_ns.param('name', 'Widget name')
+@widget_ns.response(int(HTTPStatus.BAD_REQUEST), 'Validation error.')
+@widget_ns.response(int(HTTPStatus.NOT_FOUND), 'Widget not found.')
+@widget_ns.response(int(HTTPStatus.UNAUTHORIZED), 'Unauthorized.')
+@widget_ns.response(
+    int(HTTPStatus.INTERNAL_SERVER_ERROR),
+    'Internal server error.'
+)
+class Widget(Resource):
+    @widget_ns.doc(security='Bearer')
+    @widget_ns.response(
+        int(HTTPStatus.OK),
+        'Retrieve widget.',
+        widget_model
+    )
+    @widget_ns.marshal_with(widget_model)
+    def get(self, name):
+        return retrieve_widget(name)

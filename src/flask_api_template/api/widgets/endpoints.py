@@ -59,7 +59,7 @@ class WidgetList(Resource):
     )
     @widget_ns.expect(create_widget_reqparser)
     def post(self):
-        widget_dict = create_widget_reqparser.parser_args()
+        widget_dict = create_widget_reqparser.parse_args()
         return create_widget(widget_dict)
 
 

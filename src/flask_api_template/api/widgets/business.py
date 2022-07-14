@@ -24,7 +24,7 @@ def create_widget(widget_dict):
         abort(HTTPStatus.CONFLICT, error, status='fail')
 
     widget = Widget(**widget_dict)
-    owner = User.find_by_pulic_id(create_widget.public_id)
+    owner = User.find_by_public_id(create_widget.public_id)
     widget.owner_id = owner.id
 
     db.session.add(widget)

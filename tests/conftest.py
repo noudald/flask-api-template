@@ -3,9 +3,7 @@ import pytest
 from flask_api_template import create_app
 from flask_api_template import db as database
 from flask_api_template.models.user import User
-
-EMAIL = 'test@users.com'
-PASSWORD = 'password1234'
+from tests.util import EMAIL, ADMIN_EMAIL, PASSWORD
 
 
 @pytest.fixture
@@ -33,3 +31,11 @@ def user(db):
     db.session.add(user)
     db.session.commit()
     return user
+
+
+@pytest.fixture
+def admin(db):
+    admin = User(email=ADMIN_EMAIL, password=PASSWORD, admin=True)
+    db.session.add(admin)
+    db.session.commit()
+    return admin

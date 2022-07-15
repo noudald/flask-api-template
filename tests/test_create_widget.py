@@ -7,6 +7,8 @@ from tests.util import (
     ADMIN_EMAIL,
     BAD_REQUEST,
     DEFAULT_NAME,
+    EMAIL,
+    # FORBIDDEN,
     login_user,
     create_widget
 )
@@ -106,3 +108,14 @@ def test_create_widget_already_exists(client, db, admin):
 
     message = f'Widget name: {DEFAULT_NAME} already exists, must be unique.'
     assert 'message' in response.json and response.json['message'] == message
+
+
+def test_create_widget_no_admin_token(client, db, user):
+    response = login_user(client, email=EMAIL)
+    assert 'access_token' in response.json
+
+    access_token = response.json['access_token']
+    response = create_widget(client, access_token)
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    # assert ('message' in response.json
+    #         and response.json['message'] == FORBIDDEN)

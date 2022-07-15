@@ -3,7 +3,13 @@ from http import HTTPStatus
 
 import pytest
 
-from tests.util import ADMIN_EMAIL, DEFAULT_NAME, login_user, create_widget
+from tests.util import (
+    ADMIN_EMAIL,
+    BAD_REQUEST,
+    DEFAULT_NAME,
+    login_user,
+    create_widget
+)
 
 
 @pytest.mark.parametrize(
@@ -60,3 +66,28 @@ def test_create_widget_valid_deadline(client, db, admin, deadline_str):
     location = f'/api/v1/widgets/{DEFAULT_NAME}'
     assert ('Location' in response.headers
             and response.headers['Location'] == location)
+
+
+@pytest.mark.parametrize(
+    'deadline_str',
+    [
+        '1/1/1970',
+        (date.today() - timedelta(days=3)).strftime('%Y-%m-%d'),
+        'This is not a deadline string.'
+    ]
+)
+def test_create_widget_invalid_deadline(client, db, admin, deadline_str):
+    response = login_user(client, email=ADMIN_EMAIL)
+    assert 'access_token' in response.json
+
+    access_token = response.json['access_token']
+    response = create_widget(
+        client,
+        access_token,
+        deadline_str=deadline_str
+    )
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert ('message' in response.json
+            and response.json['message'] == BAD_REQUEST)
+    assert ('errors' in response.json
+            and 'deadline' in response.json['errors'])

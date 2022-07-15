@@ -91,3 +91,18 @@ def test_create_widget_invalid_deadline(client, db, admin, deadline_str):
             and response.json['message'] == BAD_REQUEST)
     assert ('errors' in response.json
             and 'deadline' in response.json['errors'])
+
+
+def test_create_widget_already_exists(client, db, admin):
+    response = login_user(client, email=ADMIN_EMAIL)
+    assert 'access_token' in response.json
+
+    access_token = response.json['access_token']
+    response = create_widget(client, access_token)
+    assert response.status_code == HTTPStatus.CREATED
+
+    response = create_widget(client, access_token)
+    assert response.status_code == HTTPStatus.CONFLICT
+
+    message = f'Widget name: {DEFAULT_NAME} already exists, must be unique.'
+    assert 'message' in response.json and response.json['message'] == message
